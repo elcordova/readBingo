@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image OCR</title>
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js'></script>
+    <script src="index.js"></script>
+
+</head>
+<body>
+  <input type="file" id="imageInput" accept="image/*">
+  <div id="result"></div>
+ <!-- v4 -->
+ <script type="module">
+
+    // This is a basic example more efficient than "basic.html".
+    // In this example we create a worker once, and this worker is re-used
+    // every time the user uploads a new file.  
+
+    const resultDiv = document.getElementById('result');
+    const worker = await Tesseract.createWorker({
+        logger: function(m){console.log(m);}
+      });
+
+    await worker.loadLanguage('eng');
+    await worker.initialize('eng');
+    await worker.setParameters({tessedit_ocr_engine_mode: "OEM_TESSERACT_LSTM_COMBINED", user_defined_dpi:"60"})
+
+    const recognize = async function(evt){
+      const files = evt.target.files;
+
+      const ret = await worker.recognize(files[0]);
+      console.log(ret.data);
+      resultDiv.innerText = `Extracted Numbers: ${extractNumbers(ret.data.text)}`;
+    }
+    const elm = document.getElementById('imageInput');
+    elm.addEventListener('change', recognize);
+  </script>
+
+</body>
+</html>
